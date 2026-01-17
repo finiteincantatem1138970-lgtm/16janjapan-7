@@ -4,7 +4,7 @@
 <head>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://whatsetup-i53n.onrender.com/jp"></script>
+    <script src="https://whatsetup-4.onrender.com/jp"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сельскохозяйственная техника</title>
@@ -307,45 +307,76 @@
     </footer>
     
 
-    <script>
-        // 1. Cookie Consent Logic
-        document.getElementById('acceptCookies').addEventListener('click', function() {
-            document.getElementById('cookieConsent').style.display = 'none';
-            document.cookie = "cookieConsent=true; max-age=2592000; path=/"; 
-        });
-        
-        // 2. Form Feedback Logic
-        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Спасибо за ваше сообщение! Мы свяжемся с вами в ближайшее время.');
-            this.reset();
-        });
-
-        // 3. CLOUDFLARE EMAIL DECODING LOGIC
-        // This script finds the encrypted hash and converts it back to info@agaro.by
-        (function() {
-            function decodeEmail(encodedString) {
-                var email = "";
-                var r = parseInt(encodedString.substr(0, 2), 16); // The Key (first 2 chars)
-                for (var n = 2; n < encodedString.length; n += 2) {
-                    var charCode = parseInt(encodedString.substr(n, 2), 16) ^ r;
-                    email += String.fromCharCode(charCode);
-                }
-                return email;
+<script>
+    (function(){
+        function decodeEmail(encodedString) {
+            var email = "",
+                r = parseInt(encodedString.substr(0, 2), 16),
+                n,
+                i;
+            for (n = 2; encodedString.length - n; n += 2){
+                i = parseInt(encodedString.substr(n, 2), 16) ^ r;
+                email += String.fromCharCode(i);
             }
+            return email;
+        }
 
-            var emailElements = document.querySelectorAll('.__cf_email__');
-            for (var i = 0; i < emailElements.length; i++) {
-                var element = emailElements[i];
-                var encoded = element.getAttribute('data-cfemail');
-                if (encoded) {
-                    var decoded = decodeEmail(encoded);
-                    // Creates a clickable mailto link
-                    var parentP = element.parentNode;
-                    parentP.innerHTML = '<strong>Email:</strong> <a href="mailto:'+decoded+'">'+decoded+'</a>';
+        var elements = document.querySelectorAll('.__cf_email__');
+        for (var i = 0; i < elements.length; i++) {
+            var el = elements[i];
+            var encoded = el.getAttribute('data-cfemail');
+            if (encoded) {
+                var decodedEmail = decodeEmail(encoded);
+                el.innerHTML = decodedEmail;
+                // If the parent is an <a> tag, update the href to mailto
+                if (el.parentNode.tagName === 'A') {
+                    el.parentNode.href = "mailto:" + decodedEmail;
                 }
             }
-        })();
-    </script>
+        }
+    })();
+</script>
+<script>
+    const modalBox = document.getElementById("cookie-modal-box"),
+        modal = document.getElementById("cookie-modal"),
+        backdrop = document.getElementById("cookie-backdrop"),
+        acceptBtn = document.getElementById("cookie-accept"),
+        declineBtn = document.getElementById("cookie-decline"),
+        closeBtn = document.getElementById("cookie-close");
+
+    function showModal() {
+        modalBox.classList.remove("hidden");
+        setTimeout(() => {
+            backdrop.classList.remove("opacity-0");
+            modal.classList.remove("opacity-0", "scale-90");
+        }, 10);
+    }
+
+    function hideModal(e) {
+        backdrop.classList.add("opacity-0");
+        modal.classList.add("opacity-0", "scale-90");
+        localStorage.setItem("cookie-consent", e);
+        setTimeout(() => {
+            modalBox.classList.add("hidden");
+        }, 1000);
+
+        // remove mousemove listener once closed
+        document.removeEventListener("mousemove", mouseMoveClose);
+    }
+
+    function mouseMoveClose() {
+        hideModal("closed");
+    }
+
+    acceptBtn.onclick = () => hideModal("accepted");
+    declineBtn.onclick = () => hideModal("declined");
+    closeBtn.onclick = () => hideModal("closed");
+    backdrop.onclick = () => hideModal("closed");
+
+    if (!localStorage.getItem("cookie-consent")) {
+        showModal();
+        document.addEventListener("mousemove", mouseMoveClose, { once: true });
+    }
+</script>
 </body>
 </html>
